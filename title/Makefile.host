@@ -1,0 +1,17 @@
+CC ?= cc
+CPPFLAGS += -Iinclude
+CFLAGS += -O2 -Wall -Wextra -Werror
+LDLIBS += -lpthread
+
+all: elfldr-client-test
+
+elfldr-client-test: tests/test_elfldr_client.c src/elfldr_client.c include/elfldr_client.h
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ tests/test_elfldr_client.c src/elfldr_client.c $(LDLIBS)
+
+test: elfldr-client-test
+	./elfldr-client-test
+
+clean:
+	rm -f elfldr-client-test tests/test_payload.elf
+
+.PHONY: all test clean

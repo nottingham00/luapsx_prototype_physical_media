@@ -1,0 +1,47 @@
+# Build the permanent LuaPSX Games-area launcher as a real PS5 title.
+# Requires: ps5-payload-sdk, ps5link-sdk and SharpProspero for signing.
+PS5_PAYLOAD_SDK ?=
+PS5LINK_SDK ?=
+SHARPPROSPERO ?=
+TITLE_ID ?= LPSX00001
+
+ifndef PS5_PAYLOAD_SDK
+$(error PS5_PAYLOAD_SDK is undefined)
+endif
+ifndef PS5LINK_SDK
+$(error PS5LINK_SDK is undefined; point it at a ps5link-sdk checkout)
+endif
+ifndef SHARPPROSPERO
+$(error SHARPPROSPERO is undefined; point it at a SharpProspero checkout)
+endif
+
+CC := $(PS5_PAYLOAD_SDK)/bin/prospero-clang
+CFLAGS := -O2 -Wall -Wextra -Iinclude
+OBJS := build/main.o build/elfldr_client.o
+APP_ELF := build/luapsx-title.elf
+PACKAGE := package/$(TITLE_ID)
+SIGN_TOOL := $(SHARPPROSPERO)/tools/SharpProspero.Bindings.Generator
+
+all: $(PACKAGE)/eboot.bin
+
+build:
+	mkdir -p build
+
+build/main.o: src/main.c include/elfldr_client.h | build
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+build/elfldr_client.o: src/elfldr_client.c include/elfldr_client.h | build
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+$(APP_ELF): $(OBJS)
+	$(PS5LINK_SDK)/linker/link_real $@ $(PS5LINK_SDK)/linker/crt1_ps5.o $(OBJS)
+
+$(PACKAGE)/eboot.bin: $(APP_ELF)
+	cd $(SIGN_TOOL) && dotnet run -c Release -- self --sign --in $(abspath $(APP_ELF)) --out $(abspath $@)
+	@echo "Built $@"
+	@echo "Before installing, add a firmware-compatible signed libc.prx to $(PACKAGE)/sce_module/."
+
+clean:
+	rm -rf build $(PACKAGE)/eboot.bin
+
+.PHONY: all clean

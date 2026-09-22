@@ -1,0 +1,16 @@
+rm -f frontend-host-test tests/fake_libretro_core.so
+cc -Iinclude -O2 -Wall -Wextra -Werror -D_FILE_OFFSET_BITS=64 -fPIC -shared -o tests/fake_libretro_core.so tests/fake_libretro_core.c -lm
+cc -Iinclude -O2 -Wall -Wextra -Werror -D_FILE_OFFSET_BITS=64 -o frontend-host-test tests/frontend_host_test.c src/luapsx_libretro.c src/platform_headless.c -ldl -lm
+mkdir -p system saves
+./frontend-host-test ./tests/fake_libretro_core.so ../disc/PSX/GAME.CUE
+[LuaPSX] core: LuaPSX Fake Core 0.1; extensions=cue|bin; fullpath=yes
+[LuaPSX/headless] pixel format 1
+[LuaPSX] new memory card: ./saves/GAME.srm (131072 bytes)
+[LuaPSX] AV: 320x240 max 320x240, 60.000 fps, 44100 Hz
+[LuaPSX/headless] init 320x240 44100.00 Hz LuaPSX Fake Core
+[LuaPSX/headless] pixel format 1
+[LuaPSX/headless] first frame 320x240
+[LuaPSX] emulator loop ended after 6 frames
+[LuaPSX] memory card saved: ./saves/GAME.srm
+[LuaPSX/headless] shutdown: 6 video frames, 4410 audio frames
+[LuaPSX/test] save RAM: OK (131072 bytes)

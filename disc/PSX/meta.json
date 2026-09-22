@@ -1,0 +1,10 @@
+{
+  "title": "Test PS1 Disc",
+  "publisher": "LuaPSX",
+  "year": 1998,
+  "players": 1,
+  "cue": "GAME.CUE",
+  "cover": "cover.png",
+  "hero": "hero.png",
+  "logo": "logo.png"
+}

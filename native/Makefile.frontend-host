@@ -1,0 +1,21 @@
+CC ?= cc
+CPPFLAGS += -Iinclude
+CFLAGS += -O2 -Wall -Wextra -Werror -D_FILE_OFFSET_BITS=64
+LDFLAGS += -ldl -lm
+
+all: tests/fake_libretro_core.so frontend-host-test
+
+tests/fake_libretro_core.so: tests/fake_libretro_core.c include/libretro_min.h
+	$(CC) $(CPPFLAGS) $(CFLAGS) -fPIC -shared -o $@ $< -lm
+
+frontend-host-test: tests/frontend_host_test.c src/luapsx_libretro.c src/platform_headless.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
+test: all
+	mkdir -p system saves
+	./frontend-host-test ./tests/fake_libretro_core.so ../disc/PSX/GAME.CUE
+
+clean:
+	rm -f frontend-host-test tests/fake_libretro_core.so
+
+.PHONY: all test clean

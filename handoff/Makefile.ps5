@@ -1,0 +1,24 @@
+PS5_PAYLOAD_SDK ?=
+TITLE_ID ?= LPSX00001
+
+ifndef PS5_PAYLOAD_SDK
+$(error PS5_PAYLOAD_SDK is undefined; export PS5_PAYLOAD_SDK=/opt/ps5-payload-sdk)
+endif
+
+include $(PS5_PAYLOAD_SDK)/toolchain/prospero.mk
+
+CPPFLAGS += -DLUAPSX_TITLE_ID='"$(TITLE_ID)"'
+CFLAGS += -O2 -Wall -Wextra
+
+all: luapsx-handoff.elf
+
+luapsx-handoff.elf: src/luapsx_handoff.o
+	$(CC) -o $@ $^
+
+src/luapsx_handoff.o: src/luapsx_handoff.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
+
+clean:
+	rm -f src/*.o *.elf
+
+.PHONY: all clean

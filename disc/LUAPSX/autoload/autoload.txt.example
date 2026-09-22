@@ -1,0 +1,4 @@
+# Add this after your existing loader/homebrew-enablement stages.
+# Exact syntax and delays depend on the autoloader you use.
+!1000
+luapsx-handoff.elf

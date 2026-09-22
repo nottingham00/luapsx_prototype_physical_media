@@ -1,0 +1,41 @@
+PS5_HOST ?= ps5
+PS5_PORT ?= 9021
+COPY_TO_DATA ?= 1
+RUN_EMULATOR ?= 1
+CORE_PATH ?= /data/luapsx/cores/pcsx_rearmed_libretro.so
+
+# Install the ps5-payload-dev SDL2 port into a prefix, then point these at it.
+SDL2_PREFIX ?= $(PS5_PAYLOAD_SDK)
+SDL2_CFLAGS ?= -I$(SDL2_PREFIX)/include/SDL2
+SDL2_LIBS ?= -L$(SDL2_PREFIX)/lib -lSDL2
+
+ifndef PS5_PAYLOAD_SDK
+$(error PS5_PAYLOAD_SDK is undefined; export PS5_PAYLOAD_SDK=/opt/ps5-payload-sdk)
+endif
+
+include $(PS5_PAYLOAD_SDK)/toolchain/prospero.mk
+
+CPPFLAGS += -Iinclude $(SDL2_CFLAGS)
+CFLAGS += -O2 -Wall -Wextra -D_FILE_OFFSET_BITS=64 \
+          -DLUAPSX_COPY_TO_DATA=$(COPY_TO_DATA) \
+          -DLUAPSX_RUN_EMULATOR=$(RUN_EMULATOR) \
+          -DLUAPSX_CORE_PATH='"$(CORE_PATH)"'
+LDLIBS += $(SDL2_LIBS) -lm
+
+OBJS = src/psx_disc.o src/psx_cache.o src/luapsx_libretro.o src/platform_sdl.o src/payload_main.o
+
+all: luapsx-ps5.elf
+
+luapsx-ps5.elf: $(OBJS)
+	$(CC) -o $@ $(OBJS) $(LDLIBS)
+
+src/%.o: src/%.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
+
+test: luapsx-ps5.elf
+	$(PS5_DEPLOY) -h $(PS5_HOST) -p $(PS5_PORT) $<
+
+clean:
+	rm -f src/*.o *.elf
+
+.PHONY: all test clean

@@ -1,0 +1,2 @@
+CUE: /mnt/data/LuaPSX-BDJ-Prototype/disc/PSX/GAME.CUE
+OK: GAME.BIN - 75264 bytes - 32 raw sectors

@@ -1,0 +1,16 @@
+CC ?= cc
+CFLAGS ?= -O2 -g -Wall -Wextra -Wpedantic -D_FILE_OFFSET_BITS=64
+CPPFLAGS += -Iinclude
+
+all: psxdisc-test cache-copy-test
+
+psxdisc-test: src/psx_disc.c src/host_test.c include/psx_disc.h
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ src/psx_disc.c src/host_test.c
+
+cache-copy-test: src/psx_cache.c src/cache_copy_test.c include/psx_cache.h
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ src/psx_cache.c src/cache_copy_test.c
+
+clean:
+	rm -f psxdisc-test cache-copy-test
+
+.PHONY: all clean
